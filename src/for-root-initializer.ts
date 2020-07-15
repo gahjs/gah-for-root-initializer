@@ -8,7 +8,7 @@ import { ForRootInitializerConfig } from './for-root-initializer-config';
 export class ForRootInitializer extends GahPlugin {
   constructor() {
     // Call the constructor with the name of the plugin (only used for logging, does not need to match the package name)
-    super('ForRoorInitializer');
+    super('ForRootInitializer');
   }
 
   /**
