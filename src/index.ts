@@ -1,3 +1,3 @@
-import { ForRootInitializerConfig } from './for-root-initializer';
+import { ForRootInitializer } from './for-root-initializer';
 
 export default ForRootInitializer;

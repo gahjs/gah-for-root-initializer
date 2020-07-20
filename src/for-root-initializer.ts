@@ -1,4 +1,4 @@
-import { GahPlugin, GahPluginConfig } from '@awdware/gah-shared';
+import { GahPlugin, GahPluginConfig, GahHost, GahConfig } from '@awdware/gah-shared';
 
 import { ForRootInitializerConfig } from './for-root-initializer-config';
 
@@ -47,6 +47,8 @@ export class ForRootInitializer extends GahPlugin {
     return newCfg;
   }
 
+
+  
   /**
    * Called everytime gah gets used for all configured plugins. Register your handlers here.
    */
@@ -57,7 +59,27 @@ export class ForRootInitializer extends GahPlugin {
       if (!event.gahFile?.isHost) {
         return;
       }
-      console.log(this.cfg.someSetting + ' --> ' + event.gahFile?.modules[0].moduleName!);
+    });
+
+    this.registerEventListener('TEMPLATE_DATA_GENERATED', (event) => {
+      // Some example logic that does not really do anything:
+      if (!event.module?.isHost) {
+        return;
+      }
+
+      const cfg = this.config as ForRootInitializerConfig;
+      for(var init of cfg.needsForRootInitialization) {
+        console.log(init.baseModuleName + ' ' +  init.config);
+      }
+
+      for (const tempData of event.module?.gahFolder.modulesTemplateData.modules) {
+        const addForRoot = this.cfg.needsForRootInitialization.find(x => x.baseModuleName === tempData.baseModuleName);
+        const configuration = addForRoot?.config ? addForRoot.config : { };
+        if (addForRoot) {
+          tempData.staticModuleInit = '.forRoot(' + JSON.stringify(configuration) + ')';
+        }
+      }
+      //console.log(this.cfg.someSetting + ' --> ' + event.module?.moduleName!);
     });
 
     this.registerEventListener('FINISHED_MODULE_INSTALL', (event) => {
