@@ -1,4 +1,4 @@
-import { GahPlugin, GahPluginConfig, GahHost, GahConfig } from '@awdware/gah-shared';
+import { GahPlugin, GahPluginConfig } from '@awdware/gah-shared';
 
 import { ForRootInitializerConfig } from './for-root-initializer-config';
 
@@ -15,79 +15,34 @@ export class ForRootInitializer extends GahPlugin {
    * Called after adding the plugin with gah. Used to configure the plugin.
    * @param existingCfg This will be passed by gah and is used to check wheter a property is already configured or not
    */
-  public async onInstall(existingCfg: ForRootInitializerConfig): Promise<GahPluginConfig> {
-    // Create a new instance of the plugin configuration
-    const newCfg = new ForRootInitializerConfig();
-
-    // // Ask the user for configuration after installing the plugin. ONLY if the values do not exist yet!
-    // newCfg.someSetting = await this.promptService.input({
-    //   msg: 'Please enter a string configuration property',
-    //   default: 'default value',
-    //   enabled: () => !(existingCfg?.someSetting),
-    //   validator: (val: string) => val.endsWith('.json')
-    // }) ?? existingCfg.someSetting; // Defaults back to the old value in case undefined gets returned
-
-    // // Ask the user for configuration after installing the plugin. ONLY if the values do not exist yet!
-    // newCfg.somePathSetting = await this.promptService.fuzzyPath({
-    //   msg: 'Please enter a (fuzzy)path configuration property',
-    //   default: 'test/directory',
-    //   enabled: () => !(existingCfg?.somePathSetting),
-    //   itemType: 'file'
-    // }) ?? existingCfg.somePathSetting; // Defaults back to the old value in case undefined gets returned
-
-    // // Ask the user for configuration after installing the plugin. ONLY if the values do not exist yet!
-    // newCfg.someArraySetting = await this.promptService.checkbox({
-    //   msg: 'Please enter a (fuzzy)path configuration property',
-    //   default: 'test/directory',
-    //   enabled: () => !(existingCfg?.someArraySetting),
-    //   choices: () => ['Option1', 'Option2', 'Option3', 'Option4', 'Option5']
-    // }) ?? existingCfg.someArraySetting; // Defaults back to the old value in case undefined gets returned
-
-    // Return the new (or maybe unchanged) config back to gah for saving!
-    return newCfg;
+  public async onInstall(existingCfg?: ForRootInitializerConfig): Promise<GahPluginConfig> {
+    if (!existingCfg?.needsForRootInitialization) {
+      this.loggerService.warn('Plugin not configured. Please edit the configuration manually in the gah-config.json');
+    }
+    return existingCfg ?? new ForRootInitializerConfig();
   }
 
-
-  
   /**
    * Called everytime gah gets used for all configured plugins. Register your handlers here.
    */
   public onInit() {
-    // Register a handler that gets called synchronously if the corresponding event occured. Some events can be called multiple times!
-    this.registerEventListener('INSTALL_STARTED', (event) => {
-      // Some example logic that does not really do anything:
-      if (!event.gahFile?.isHost) {
-        return;
-      }
-    });
-
     this.registerEventListener('TEMPLATE_DATA_GENERATED', (event) => {
-      // Some example logic that does not really do anything:
       if (!event.module?.isHost) {
         return;
       }
 
       const cfg = this.config as ForRootInitializerConfig;
-      for(var init of cfg.needsForRootInitialization) {
-        console.log(init.baseModuleName + ' ' +  init.config);
+      for (var init of cfg.needsForRootInitialization) {
+        console.log(`${init.baseModuleName} ${init.config}`);
       }
 
       for (const tempData of event.module?.gahFolder.modulesTemplateData.modules) {
         const addForRoot = this.cfg.needsForRootInitialization.find(x => x.baseModuleName === tempData.baseModuleName);
-        const configuration = addForRoot?.config ? addForRoot.config : { };
+        const configuration = addForRoot?.config ? addForRoot.config : {};
         if (addForRoot) {
-          tempData.staticModuleInit = '.forRoot(' + JSON.stringify(configuration) + ')';
+          tempData.staticModuleInit = `.forRoot(${JSON.stringify(configuration)})`;
         }
       }
-      //console.log(this.cfg.someSetting + ' --> ' + event.module?.moduleName!);
-    });
-
-    this.registerEventListener('FINISHED_MODULE_INSTALL', (event) => {
-      // Some example logic that does not really do anything:
-      if (!event.module?.isEntry) {
-        return;
-      }
-      console.log('entry module: ' + event.module.moduleName!);
     });
   }
 

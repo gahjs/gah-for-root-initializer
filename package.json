@@ -1,6 +1,6 @@
 {
   "name": "@awdware/gah-for-root-initializer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "For Root Initializer",
   "main": "./lib/index.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "@awdware/gah-shared": "^0.0.36"
   },
   "devDependencies": {
+    "@awdware/eslint-config-nodejs": "0.0.6",
     "@types/node": "^13.13.2",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
