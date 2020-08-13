@@ -33,7 +33,7 @@ export class ForRootInitializer extends GahPlugin {
 
       const cfg = this.config as ForRootInitializerConfig;
       for (var init of cfg.needsForRootInitialization) {
-        console.log(`${init.baseModuleName} ${init.config}`);
+        this.loggerService.debug(`ModuleName: ${init.baseModuleName} InitConfig: ${init.config}`);
       }
 
       for (const tempData of event.module?.gahFolder.modulesTemplateData.modules) {
