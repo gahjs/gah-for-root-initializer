@@ -1,4 +1,4 @@
-import { GahPlugin, GahPluginConfig } from '@awdware/gah-shared';
+import { GahPlugin, GahPluginConfig } from '@gah/shared';
 
 import { ForRootInitializerConfig } from './for-root-initializer-config';
 
@@ -17,7 +17,7 @@ export class ForRootInitializer extends GahPlugin {
    */
   public async onInstall(existingCfg?: ForRootInitializerConfig): Promise<GahPluginConfig> {
     if (!existingCfg?.needsForRootInitialization) {
-      this.loggerService.warn('Plugin not configured. Please edit the configuration manually in the gah-config.json');
+      this.loggerService.warn('Plugin not configured. Please edit the configuration manually');
     }
     return existingCfg ?? new ForRootInitializerConfig();
   }
@@ -26,13 +26,13 @@ export class ForRootInitializer extends GahPlugin {
    * Called everytime gah gets used for all configured plugins. Register your handlers here.
    */
   public onInit() {
-    this.registerEventListener('TEMPLATE_DATA_GENERATED', (event) => {
+    this.registerEventListener('AFTER_GENERATE_TEMPLATE_DATA', (event) => {
       if (!event.module?.isHost) {
         return;
       }
 
       const cfg = this.config as ForRootInitializerConfig;
-      for (var init of cfg.needsForRootInitialization) {
+      for (const init of cfg.needsForRootInitialization) {
         this.loggerService.debug(`ModuleName: ${init.baseModuleName} InitConfig: ${init.config}`);
       }
 
